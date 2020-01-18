@@ -10,10 +10,20 @@
 Summary:       Python bindings for libsmbclient API from Samba
 Name:          python-smbc
 Version:       1.0.13
-Release:       7%{?dist}
-URL:           http://cyberelk.net/tim/software/pysmbc/
+Release:       8%{?dist}
+URL:           https://github.com/hamano/pysmbc
 Source:        http://pypi.python.org/packages/source/p/pysmbc/pysmbc-%{version}.tar.bz2
 Patch1:        python-smbc-pkg-config.patch
+
+# Fix memory leak in the auth_fn callback.
+# Fixed upstream: https://github.com/hamano/pysmbc/commit/8fa966e780d62f9bbc603c15a42432a7fe1cc568
+Patch2:        fix-memory-leak-in-auth_fn-callback.patch
+
+# Make sure auth info is NUL-terminated.
+# Fixed upstream: https://github.com/hamano/pysmbc/commit/94a8572b78f9734e0f37e5ffc8a61926101a3d77
+# Resolves: rhbz#1248519
+Patch3:        make-sure-auto-info-is-NULL-terminated.patch
+
 License:       GPLv2+
 Group:         Development/Languages
 BuildRequires: python2-devel
@@ -51,6 +61,8 @@ Documentation for python-smbc.
 %prep
 %setup -q -n pysmbc-%{version}
 %patch1 -p1 -b .pkg-config
+%patch2 -p1
+%patch3 -p1
 
 %if 0%{?with_python3}
 rm -rf %{py3dir}
@@ -102,6 +114,11 @@ chmod 755 %{buildroot}%{python_sitearch}/smbc.so
 
 
 %changelog
+* Wed Oct 11 2017 Charalampos Stratakis <cstratak@redhat.com> - 1.0.13-8
+- Fix memory leak in the auth_fn callback.
+- Make sure auth info is NUL-terminated.
+Resolves: rhbz#1248519
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.13-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
